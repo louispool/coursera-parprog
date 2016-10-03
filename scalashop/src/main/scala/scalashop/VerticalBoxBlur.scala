@@ -56,25 +56,21 @@ object VerticalBoxBlur {
    */
   def parBlur(src: Img, dst: Img, numTasks: Int, radius: Int): Unit = {
 
-    val splits = 0 to src.width by numTasks
+    val splits = 0 to src.width by src.width/clamp(numTasks, 1, src.width)
 
-    //Check case when number of tasks exceeds or approaches image dimension
+    //Check case when number of tasks is exceedingly small or zero
     if (splits.length <= 2) {
       blur(src, dst, 0, src.width, radius)
     } else {
 
+      //Create strips for every task
       val strips = splits.zip(splits.tail)
       val tasks = for {
-        (from, end) <- strips.init
+        (from, end) <- strips
       } yield task(blur(src, dst, from, end, radius))
 
-      //Specify end of last strip to ensure whole image is processed when
-      //dimension is not divisible by number of tasks
-      blur(src, dst, strips.last._1, src.width, radius)
-
-      //Wait for other tasks to finish
+      //Wait for tasks to finish
       tasks.foreach(t => t.join())
     }
   }
-
 }
