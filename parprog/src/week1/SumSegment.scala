@@ -1,5 +1,6 @@
 package week1
 
+import common._
 
 object SumSegment {
 
@@ -32,6 +33,4 @@ object SumSegment {
       sum1 + sum2
     }
   }
-
-  def parallel[A, B](taskA: => A, taskB: => B): (A, B) = ???
 }
