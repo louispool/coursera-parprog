@@ -92,7 +92,7 @@ class ParScanArray {
     case LeafRes(a) => Leaf(f(a0, a)) // ’a0’ is reduce of all elements left of the tree ’t’
     case NodeRes(l, _, r) => {
       val (tL, tR) = parallel(downsweep[A](l, a0, f),
-                               downsweep[A](r, f(a0, l.res), f))
+                              downsweep[A](r, f(a0, l.res), f))
       Node(tL, tR)
     }
   }
