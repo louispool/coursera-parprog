@@ -49,7 +49,7 @@ case class <>[T](left: Conc[T], right: Conc[T]) extends Conc[T] {
   def concat(xs: Conc[T], ys: Conc[T]): Conc[T] = {
     val diff = ys.level - xs.level
     if (diff >= -1 && diff <= 1) new <>(xs, ys)
-    else if (diff < -1) {
+    //else if (diff < -1) {
       if (xs.left.level >= xs.right.level) {
         val nr = concat(xs.right, ys)
         new <>(xs.left, nr)
@@ -65,7 +65,7 @@ case class <>[T](left: Conc[T], right: Conc[T]) extends Conc[T] {
           new <>(nl, nr)
         }
       }
-    }
+    //}
   }
 
 }
