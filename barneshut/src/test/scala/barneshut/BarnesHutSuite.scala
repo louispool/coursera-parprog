@@ -111,7 +111,6 @@ import FloatOps._
     val res = sm(2, 3).size == 1 && sm(2, 3).find(_ == body).isDefined
     assert(res, s"Body not found in the right sector")
   }
-
 }
 
 object FloatOps {

@@ -18,6 +18,8 @@ package object barneshut {
     def centerX = minX + width / 2
     def centerY = minY + height / 2
 
+    def contains(x: Float, y: Float): Boolean = (x <= maxX && x >= minX) && (y <= maxY && y >= minY)
+
     override def toString = s"Boundaries($minX, $minY, $maxX, $maxY)"
   }
 
@@ -108,7 +110,7 @@ package object barneshut {
         val fork = Fork(Empty(centerX - inc, centerY - inc, newSize), Empty(centerX + inc, centerY - inc, newSize),
                         Empty(centerX - inc, centerY + inc, newSize), Empty(centerX + inc, centerY + inc, newSize))
 
-        (bodies :+ b).foldLeft(fork)(_.insert(_))
+        (bodies :+ b).foldLeft(fork)(_ insert _)
       } else {
         Leaf(centerX, centerY, size, bodies :+ b)
       }
@@ -197,19 +199,28 @@ package object barneshut {
   class SectorMatrix(val boundaries: Boundaries, val sectorPrecision: Int) {
 
     val sectorSize = boundaries.size / sectorPrecision
+
     val matrix = new Array[ConcBuffer[Body]](sectorPrecision * sectorPrecision)
-
-    for (i <- 0 until matrix.length) matrix(i) = new ConcBuffer
-
-    def +=(b: Body): SectorMatrix = {
-      ???
-      this
-    }
+    for (i <- matrix.indices) matrix(i) = new ConcBuffer
 
     def apply(x: Int, y: Int) = matrix(y * sectorPrecision + x)
 
+    def +=(b: Body): SectorMatrix = {
+
+      val x = ((b.x - boundaries.minX) / sectorSize).toInt
+      val y = ((b.y - boundaries.minY) / sectorSize).toInt
+
+      def clamp(v: Int) = if (v >= sectorPrecision) sectorPrecision-1 else if (v < 0) 0 else v
+
+      this(clamp(x), clamp(y)) += b
+      this
+    }
+
     def combine(that: SectorMatrix): SectorMatrix = {
-      ???
+
+      val newMatrix = new SectorMatrix(boundaries, sectorPrecision)
+      for (i <- matrix.indices) newMatrix.matrix(i) = matrix(i).combine(that.matrix(i))
+      newMatrix
     }
 
     def toQuad(parallelism: Int): Quad = {
